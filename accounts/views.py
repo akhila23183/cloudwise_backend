@@ -3,9 +3,16 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login
 from .models import CustomUser
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from accounts.models import CustomUser
+from django.contrib.auth import get_user_model
+from django.contrib.auth.decorators import login_required
+
+
  
  
-@csrf_exempt
+@csrf_exempt 
 def register(request):
     if request.method == "POST":
         data = json.loads(request.body)
@@ -45,3 +52,18 @@ def user_login(request):
  
     return JsonResponse({"error": "Only POST allowed"}, status=405)
 
+
+
+# @login_required
+def user_list(request):  
+    if request.user.is_authenticated: 
+    
+ 
+        return JsonResponse({
+            "id": request.user.id,
+            "email": request.user.email
+        })
+    else:
+        return JsonResponse("Not user found, Please login with valid credentilas ")
+    
+ 

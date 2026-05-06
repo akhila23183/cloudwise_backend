@@ -2,7 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 
-class CustomUserManager(BaseUserManager):
+
+class CustomUserManager(BaseUserManager): 
     def create_user(self, email, password=None):
         if not email:
             raise ValueError("Email required")
