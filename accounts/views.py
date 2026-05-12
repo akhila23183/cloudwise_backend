@@ -1,69 +1,119 @@
+
+import csv
+import io
 import json
+ 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login
+from django.db.models import Sum
 from .models import CustomUser
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from accounts.models import CustomUser
-from django.contrib.auth import get_user_model
-from django.contrib.auth.decorators import login_required
+from client_selection.models import CloudCost
 
 
- 
- 
-@csrf_exempt 
+# REGISTER
+@csrf_exempt
 def register(request):
+
     if request.method == "POST":
+
         data = json.loads(request.body)
- 
+
+        username = data.get("username")
+
         email = data.get("email")
+
         password = data.get("password")
+
         confirm_password = data.get("confirm_password")
- 
+
         if password != confirm_password:
-            return JsonResponse({"error": "Passwords do not match"}, status=400)
- 
+
+            return JsonResponse({
+                "error": "Passwords do not match"
+            }, status=400)
+
         if CustomUser.objects.filter(email=email).exists():
-            return JsonResponse({"error": "Email already exists"}, status=400)
+
+            return JsonResponse({
+                "error": "Email already exists"
+            }, status=400)
+
+        CustomUser.objects.create_user(
+            username=username,
+            email=email,
+            password=password
+        )
+
+        return JsonResponse({
+            "message": "User registered successfully"
+        })
+
+    return JsonResponse({
+        "error": "Only POST allowed"
+    })
  
-        CustomUser.objects.create_user(email=email, password=password)
+
  
-        return JsonResponse({"message": "User registered successfully"})
  
-    return JsonResponse({"error": "Only POST allowed"}, status=405)
- 
+# LOGIN
  
 @csrf_exempt
 def user_login(request):
+ 
     if request.method == "POST":
+ 
         data = json.loads(request.body)
  
         email = data.get("email")
+ 
         password = data.get("password")
  
-        user = authenticate(request, username=email, password=password)
+        user = authenticate(
+            request,
+            username=email,
+            password=password
+        )
  
         if user:
-            login(request, user)
-            return JsonResponse({"message": "Login successful"})
-        else:
-            return JsonResponse({"error": "Invalid credentials"}, status=400)
  
-    return JsonResponse({"error": "Only POST allowed"}, status=405)
-
-
-
-# @login_required
-def user_list(request):  
-    if request.user.is_authenticated: 
-    
+            login(request, user)
+ 
+            return JsonResponse({
+                "message": "Login successful"
+            })
  
         return JsonResponse({
-            "id": request.user.id,
-            "email": request.user.email
-        })
-    else:
-        return JsonResponse("Not user found, Please login with valid credentilas ")
-    
+            "error": "Invalid credentials"
+        }, status=400)
  
+    return JsonResponse({
+        "error": "Only POST allowed"
+    })
+ 
+ 
+# USER DETAILS
+ 
+@csrf_exempt
+def user_list(request):
+ 
+    if request.user.is_authenticated:
+ 
+        return JsonResponse({
+ 
+            "id": request.user.id,
+            
+            "username": request.user.username,
+ 
+            "email": request.user.email
+ 
+        })
+ 
+    return JsonResponse({
+        "message": "Please login"
+    })
+ 
+ 
+
+ 
+

@@ -1,30 +1,45 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import (
+    AbstractBaseUser,
+    BaseUserManager,
+    PermissionsMixin
+)
 
+class CustomUserManager(BaseUserManager):
 
+    def create_user(self, email, username, password=None):
 
-class CustomUserManager(BaseUserManager): 
-    def create_user(self, email, password=None):
         if not email:
-            raise ValueError("Email required")
+            raise ValueError("Email is required")
 
-        email = self.normalize_email(email)
-        user = self.model(email=email)
+        user = self.model(
+            email=self.normalize_email(email),
+            username=username
+        )
+
         user.set_password(password)
-        user.save()
-        return user
+        user.save(using=self._db)
 
-    def get_by_natural_key(self, email):
-        return self.get(email=email)
+        return user
 
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
+
     email = models.EmailField(unique=True)
 
-    objects = CustomUserManager()   
+    username = models.CharField(max_length=100)
+
+    is_active = models.BooleanField(default=True)
+
+    is_staff = models.BooleanField(default=False)
+
+    objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = []
+
+    REQUIRED_FIELDS = ['username']
 
     def __str__(self):
         return self.email
+ 
+ 
