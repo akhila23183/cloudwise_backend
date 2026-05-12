@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 
+import pymysql
+
+pymysql.install_as_MySQLdb()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -79,17 +83,26 @@ WSGI_APPLICATION = 'cloudwise_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'cloudwise',
+#         'USER': 'root',
+#         'PASSWORD':'test@143',
+#         'HOST': 'localhost',
+#         'PORT': '3306',
+#     }
+# }
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'cloudwise',
+        'NAME': 'railway',
         'USER': 'root',
-        'PASSWORD':'test@143',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'PASSWORD': 'ArNtmqcmiRVIHnqxugwvfKNCJttpBRjn',
+        'HOST': 'yamanote.proxy.rlwy.net',
+        'PORT': '27981',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
