@@ -171,31 +171,38 @@ from .models import CloudCost,client
 #         "data": final_data
 #     })
     
+
+
 def client_user(request):
-     client_data = client.objects.filter(
-        user = request.user
+
+    client_data = client.objects.filter(
+        client=request.user
     )
 
-     final_data = []
- 
-     for i in data:
- 
-        final_data.append({
-            "id": i.id,
-            "client_id": i.client_id,
-            "date": str(i.date),
-            "cloud_provider": i.cloud_provider,
-            "account_id": i.account_id,
-            "service": i.service,
-            "resource_id":i.resource_id,
-            "region":i.region,
-            "usage":i.usage,
-            "cost": i.cost,
-            "currency": i.currency,
-            "team":i.team,
-            "environment": i.environment
-            
-        })
- 
-     return JsonResponse(final_data, safe=False)
- 
+    final_data = []
+
+    for c in client_data:
+
+        data = CloudCost.objects.filter(
+            client_id=c.client_id
+        )
+
+        for i in data:
+
+            final_data.append({
+                "id": i.id,
+                "client_id": i.client_id,
+                "date": str(i.date),
+                "cloud_provider": i.cloud_provider,
+                "account_id": i.account_id,
+                "service": i.service,
+                "resource_id": i.resource_id,
+                "region": i.region,
+                "usage": i.usage,
+                "cost": i.cost,
+                "currency": i.currency,
+                "team": i.team,
+                "environment": i.environment
+            })
+
+    return JsonResponse(final_data, safe=False)
