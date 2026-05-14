@@ -19,5 +19,5 @@ class CloudCost(models.Model):
     class Meta:
         db_table = "cloudwise_cloudcost"
         
-class client(models.Model):
+class Client(models.Model):
     client = models.ForeignKey(CustomUser,on_delete=models.CASCADE)

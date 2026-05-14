@@ -1,14 +1,14 @@
 # import csv
 # import io
 
-from rest_framework.decorators import api_view
+#from rest_framework.decorators import api_view
 # from rest_framework.response import Response
 # from django.views.decorators.csrf import csrf_exempt
 # from rest_framework.permissions import AllowAny
 # from rest_framework.decorators import permission_classes
 from django.http import JsonResponse
 
-from .models import CloudCost,client
+from .models import CloudCost, Client
 
 
 
@@ -172,23 +172,20 @@ from .models import CloudCost,client
 #     })
     
 
-
 def client_user(request):
 
-    client_data = client.objects.filter(
-        client=request.user
-    )
+    if not request.user.is_authenticated:
+        return JsonResponse({"error": "Unauthorized"}, status=401)
+
+    client_data = Client.objects.filter(client=request.user)
 
     final_data = []
 
     for c in client_data:
 
-        data = CloudCost.objects.filter(
-            client_id=c.client_id
-        )
+        data = CloudCost.objects.filter(client_id=c.id)
 
         for i in data:
-
             final_data.append({
                 "id": i.id,
                 "client_id": i.client_id,
