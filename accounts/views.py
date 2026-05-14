@@ -19,7 +19,6 @@ def register(request):
 
         data = json.loads(request.body)
 
-        username = data.get("username")
 
         email = data.get("email")
 
@@ -40,7 +39,7 @@ def register(request):
             }, status=400)
 
         CustomUser.objects.create_user(
-            username=username,
+            username=email,
             email=email,
             password=password
         )
@@ -57,40 +56,38 @@ def register(request):
  
  
 # LOGIN
- 
 @csrf_exempt
 def user_login(request):
- 
+
     if request.method == "POST":
- 
+
         data = json.loads(request.body)
- 
+
         email = data.get("email")
- 
+
         password = data.get("password")
- 
+
         user = authenticate(
             request,
             username=email,
             password=password
         )
- 
+
         if user:
- 
+
             login(request, user)
- 
+
             return JsonResponse({
                 "message": "Login successful"
             })
- 
+
         return JsonResponse({
             "error": "Invalid credentials"
         }, status=400)
- 
+
     return JsonResponse({
         "error": "Only POST allowed"
     })
- 
  
 # USER DETAILS
  
@@ -102,9 +99,7 @@ def user_list(request):
         return JsonResponse({
  
             "id": request.user.id,
-            
-            "username": request.user.username,
- 
+        
             "email": request.user.email
  
         })

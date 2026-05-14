@@ -1,4 +1,5 @@
 from django.db import models
+from accounts.models import CustomUser
 
 class CloudCost(models.Model):
     client_id = models.IntegerField(null=False)
@@ -17,3 +18,6 @@ class CloudCost(models.Model):
     
     class Meta:
         db_table = "cloudwise_cloudcost"
+        
+class client(models.Model):
+    client = models.ForeignKey(CustomUser,on_delete=models.CASCADE)

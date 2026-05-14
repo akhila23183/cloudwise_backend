@@ -1,9 +1,8 @@
 from django.urls import path
-from .views import upload_csv, clients, client_data
+from .views import client_user
 
 urlpatterns = [
-    path('upload/', upload_csv),
-    path('clients/', clients),
-    path('client/<int:client_id>/', client_data),
+    # path('', client_list),
+    # path('<int:client_id>/', client_data),
+    path('client_user/',client_user)
 ]
-
