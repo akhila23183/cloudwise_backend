@@ -228,3 +228,33 @@ def client_selection(request):
     return JsonResponse({
         "clients": client_list
     })
+    
+    
+   
+
+
+
+
+def client_data(request, client_id):
+
+    data = CloudCost.objects.filter(client_id=client_id).first()
+
+    final_data = {
+
+        "id": data.id,
+        "client_id": data.client_id,
+        "date": str(data.date),
+        "cloud_provider": data.cloud_provider,
+        "account_id": data.account_id,
+        "service": data.service,
+        "resource_id": data.resource_id,
+        "region": data.region,
+        "usage": data.usage,
+        "cost": data.cost,
+        "currency": data.currency,
+        "team": data.team,
+        "environment": data.environment
+
+    }
+
+    return JsonResponse(final_data)
