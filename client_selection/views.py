@@ -1,9 +1,9 @@
-# import csv
-# import io
+import csv
+import io
 
 #from rest_framework.decorators import api_view
 # from rest_framework.response import Response
-# from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt
 # from rest_framework.permissions import AllowAny
 # from rest_framework.decorators import permission_classes
 from django.http import JsonResponse
@@ -11,57 +11,59 @@ from django.http import JsonResponse
 from .models import CloudCost, Client
 
 
+@csrf_exempt
+def upload_csv(request):
 
-# @csrf_exempt
-# def upload_csv(request):
+    if request.method == "POST":
 
-#     try:
+        try:
 
-#         csv_file = request.FILES['file']
+            csv_file = request.FILES['file']
 
-#         decoded_file = csv_file.read().decode('utf-8-sig').splitlines()
+            decoded_file = csv_file.read().decode('utf-8').splitlines()
 
-#         reader = csv.DictReader(decoded_file)
+            reader = csv.reader(decoded_file)
 
-#         print("FIELDS:", reader.fieldnames)
+            next(reader)
 
-#         inserted = 0
+            for row in reader:  
 
-#         for row in reader:
+                # split manually
+                data = row[0].split(',')
 
-#             print("ROW:", row)
+                print("DATA:", data)
 
-#             CloudCost.objects.create(
+                CloudCost.objects.create(
 
-#                 client_id=row.get('client_id'),
-#                 date=row.get('date'),
-#                 cloud_provider=row.get('cloud_provider'),
-#                 account_id=row.get('account_id'),
-#                 service=row.get('service'),
-#                 resource_id=row.get('resource_id'),
-#                 region=row.get('region'),
-#                 usage=row.get('usage'),
-#                 cost=row.get('cost'),
-#                 currency=row.get('currency'),
-#                 team=row.get('team'),
-#                 environment=row.get('environment')
+                    client_id=int(data[0]),
+                    date=data[1],
+                    cloud_provider=data[2],
+                    account_id=data[3],
+                    service=data[4],
+                    resource_id=data[5],
+                    region=data[6],
+                    usage=float(data[7]),
+                    cost=float(data[8]),
+                    currency=data[9],
+                    team=data[10],
+                    environment=data[11]
 
-#             )
+                )
 
-#             inserted += 1
+            return JsonResponse({
+                "message": "CSV uploaded successfully"
+            })
 
-#         return JsonResponse({
-#             "message": "uploaded successfully",
-#             "inserted": inserted
-#         })
+        except Exception as e:
 
-#     except Exception as e:
+            return JsonResponse({
+                "error": str(e)
+            })
 
-#         print("ERROR:", e)
+    return JsonResponse({
+        "message": "Only POST method allowed"
+    })
 
-#         return JsonResponse({
-#             "error": str(e)
-#         }, status=500)
 
 
 
@@ -172,34 +174,57 @@ from .models import CloudCost, Client
 #     })
     
 
-def client_user(request):
+# def client_user(request):
 
-    if not request.user.is_authenticated:
-        return JsonResponse({"error": "Unauthorized"}, status=401)
+#     if not request.user.is_authenticated:
+#         return JsonResponse({"error": "Unauthorized"}, status=401)
 
-    client_data = Client.objects.filter(client=request.user)
+#     client_data = Client.objects.filter(client=request.user)
 
-    final_data = []
+#     final_data = []
 
-    for c in client_data:
+#     for c in client_data:
 
-        data = CloudCost.objects.filter(client_id=c.id)
+#         data = CloudCost.objects.filter(client_id=c.id)
 
-        for i in data:
-            final_data.append({
-                "id": i.id,
-                "client_id": i.client_id,
-                "date": str(i.date),
-                "cloud_provider": i.cloud_provider,
-                "account_id": i.account_id,
-                "service": i.service,
-                "resource_id": i.resource_id,
-                "region": i.region,
-                "usage": i.usage,
-                "cost": i.cost,
-                "currency": i.currency,
-                "team": i.team,
-                "environment": i.environment
-            })
+#         for i in data:
+#             final_data.append({
+#                 "id": i.id,
+#                 "client_id": i.client_id,
+#                 "date": str(i.date),
+#                 "cloud_provider": i.cloud_provider,
+#                 "account_id": i.account_id,
+#                 "service": i.service,
+#                 "resource_id": i.resource_id,
+#                 "region": i.region,
+#                 "usage": i.usage,
+#                 "cost": i.cost,
+#                 "currency": i.currency,
+#                 "team": i.team,
+#                 "environment": i.environment
+#             })
 
-    return JsonResponse(final_data, safe=False)
+#     return JsonResponse(final_data, safe=False)
+
+
+    
+
+@csrf_exempt
+def client_selection(request):
+
+    clients = (
+        CloudCost.objects
+        .values_list('client_id', flat=True)
+        .distinct()
+    )
+
+    client_list = []
+
+    for client in clients:
+        client_list.append({
+            "client_id": client
+        })
+
+    return JsonResponse({
+        "clients": client_list
+    })
