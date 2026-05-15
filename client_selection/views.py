@@ -11,6 +11,67 @@ from django.http import JsonResponse
 from .models import CloudCost, Client
 
 
+# @csrf_exempt
+# def upload_csv(request):
+
+#     if request.method == "POST":
+
+#         try:
+
+#             csv_file = request.FILES['file']
+
+#             decoded_file = csv_file.read().decode('utf-8').splitlines()
+
+#             reader = csv.reader(decoded_file)
+
+#             next(reader)
+
+#             for row in reader:  
+
+#                 # split manually
+#                 data = row[0].split(',')
+
+#                 print("DATA:", data)
+
+#                 CloudCost.objects.create(
+
+#                     client_id=int(data[0]),
+#                     date=data[1],
+#                     cloud_provider=data[2],
+#                     account_id=data[3],
+#                     service=data[4],
+#                     resource_id=data[5],
+#                     region=data[6],
+#                     usage=float(data[7]),
+#                     cost=float(data[8]),
+#                     currency=data[9],
+#                     team=data[10],
+#                     environment=data[11]
+
+#                 )
+
+#             return JsonResponse({
+#                 "message": "CSV uploaded successfully"
+#             })
+
+#         except Exception as e:
+
+#             return JsonResponse({
+#                 "error": str(e)
+#             })
+
+#     return JsonResponse({
+#         "message": "Only POST method allowed"
+#     })
+
+
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+from .models import CloudCost
+
+
 @csrf_exempt
 def upload_csv(request):
 
@@ -20,16 +81,20 @@ def upload_csv(request):
 
             csv_file = request.FILES['file']
 
-            decoded_file = csv_file.read().decode('utf-8').splitlines()
+            decoded_file = csv_file.read().decode(
+                'utf-8'
+            ).splitlines()
 
-            reader = csv.reader(decoded_file)
+            # SKIP HEADER
+            for row in decoded_file[1:]:
 
-            next(reader)
+                data = [
 
-            for row in reader:  
+                    x.replace('"', '').strip()
 
-                # split manually
-                data = row[0].split(',')
+                    for x in row.split(',')
+
+                ]
 
                 print("DATA:", data)
 
@@ -51,22 +116,26 @@ def upload_csv(request):
                 )
 
             return JsonResponse({
+
                 "message": "CSV uploaded successfully"
+
             })
 
         except Exception as e:
 
+            print("ERROR:", e)
+
             return JsonResponse({
+
                 "error": str(e)
+
             })
 
     return JsonResponse({
+
         "message": "Only POST method allowed"
-    })
 
-
-
-
+    }) 
 
 
 
